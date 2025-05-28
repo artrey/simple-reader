@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guides</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1Ijoib25lc29pbCIsImEiOiJjamsydmM2Yngwd3EyM3FyeWVyOWF0cTByIn0.Crc52Fh0B1P-2M_mLrlllg";
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v11",
+        zoom: 11,
+        center: [-61.3, -33.0],
+      });
+
+      map.on("load", () => {
+        map.addSource("boundaries2024", {
+          type: "vector",
+          tiles: [
+            "https://tiles.onesoil.ai/vector/1482_Argentina_PoC_2024/{z}/{x}/{y}.pbf",
+          ],
+          minzoom: 0,
+          maxzoom: 14,
+        });
+        map.addSource("boundaries2025", {
+          type: "vector",
+          tiles: [
+            "https://tiles.onesoil.ai/vector/1482_Argentina_PoC_2025/{z}/{x}/{y}.pbf",
+          ],
+          minzoom: 0,
+          maxzoom: 14,
+        });
+        map.addLayer({
+          id: "boundaries-outline-2024",
+          type: "line",
+          source: "boundaries2024",
+          "source-layer": "2024",
+          paint: {
+            "line-color": "#f00",
+          },
+        });
+        map.addLayer({
+          id: "boundaries-outline-2025",
+          type: "line",
+          source: "boundaries2025",
+          "source-layer": "2025",
+          paint: {
+            "line-color": "#fff",
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
