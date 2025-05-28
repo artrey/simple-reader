@@ -1,81 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
-    <meta charset="utf-8" />
-    <title>Guides</title>
-    <meta
-      name="viewport"
-      content="initial-scale=1,maximum-scale=1,user-scalable=no"
-    />
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SimpleReader</title>
     <style>
       body {
+        font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
+        background-color: #f0f0f0;
       }
-
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #333;
+        color: white;
+        padding: 10px 0;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .chapter-selector {
+        background-color: #444;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      select,
+      button,
+      .chapter-selector > p {
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: none;
+        background-color: #555;
+        color: white;
+      }
+      button {
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #666;
+      }
+      .manga-images {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .manga-images img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        font-size: 18px;
+        color: #666;
       }
     </style>
   </head>
-
   <body>
-    <div id="map"></div>
+    <script type="module">
+      import { h, render } from "https://esm.sh/preact";
+      import { useState } from "https://esm.sh/preact/hooks";
+      import htm from "https://esm.sh/htm";
 
-    <script>
-      mapboxgl.accessToken =
-        "pk.eyJ1Ijoib25lc29pbCIsImEiOiJjamsydmM2Yngwd3EyM3FyeWVyOWF0cTByIn0.Crc52Fh0B1P-2M_mLrlllg";
-      const map = new mapboxgl.Map({
-        container: "map",
-        style: "mapbox://styles/mapbox/dark-v11",
-        zoom: 11,
-        center: [-61.3, -33.0],
-      });
+      const html = htm.bind(h);
 
-      map.on("load", () => {
-        map.addSource("boundaries2024", {
-          type: "vector",
-          tiles: [
-            "https://tiles.onesoil.ai/vector/1482_Argentina_PoC_2024/{z}/{x}/{y}.pbf",
-          ],
-          minzoom: 0,
-          maxzoom: 14,
-        });
-        map.addSource("boundaries2025", {
-          type: "vector",
-          tiles: [
-            "https://tiles.onesoil.ai/vector/1482_Argentina_PoC_2025/{z}/{x}/{y}.pbf",
-          ],
-          minzoom: 0,
-          maxzoom: 14,
-        });
-        map.addLayer({
-          id: "boundaries-outline-2024",
-          type: "line",
-          source: "boundaries2024",
-          "source-layer": "2024",
-          paint: {
-            "line-color": "#f00",
-          },
-        });
-        map.addLayer({
-          id: "boundaries-outline-2025",
-          type: "line",
-          source: "boundaries2025",
-          "source-layer": "2025",
-          paint: {
-            "line-color": "#fff",
-          },
-        });
-      });
+      function ImageOrNull({ src, ...restProps }) {
+        const [attempts, setAttempts] = useState(1);
+
+        if (attempts <= 0) {
+          return null;
+        }
+
+        return html`
+          <img
+            src=${src}
+            onError=${() => setAttempts((prev) => prev - 1)}
+            ${{ ...restProps }}
+          />
+        `;
+      }
+
+      function App(props) {
+        const [chapter, setChapter] = useState(198);
+
+        const chapterSelector = () => {
+          return html`
+            <div class="chapter-selector">
+              <button onClick=${() => setChapter((prev) => prev - 1)}>
+                ← Предыдущая
+              </button>
+              <p>Глава ${chapter}</p>
+              <button onClick=${() => setChapter((prev) => prev + 1)}>
+                Следующая →
+              </button>
+            </div>
+          `;
+        };
+
+        return html`
+          <div class="header">
+            <h1>The Constellation That Returned From Hell</h1>
+          </div>
+
+          <div class="container">
+            <div id="manga-container">
+              ${chapterSelector()}
+
+              <div class="manga-images">
+                ${[...Array(30).keys()].map(
+                  (x) => html`
+                    <${ImageOrNull}
+                      src="https://demoniclibs.com/The%20Constellation%20That%20Returned%20From%20Hell/${chapter}/${x}.jpg"
+                    />
+                  `
+                )}
+              </div>
+
+              ${chapterSelector()}
+            </div>
+          </div>
+        `;
+      }
+
+      render(html`<${App} />`, document.body);
     </script>
   </body>
 </html>
