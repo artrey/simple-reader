@@ -94,16 +94,27 @@
       }
 
       function App(props) {
-        const [chapter, setChapter] = useState(198);
+        const params = Object.fromEntries(
+          window.location.search
+            .substring(1)
+            .split("&")
+            .map((x) => x.split("="))
+            .filter((x) => !!x[0])
+        );
+        const chapter = +(params["chapter"] || "1");
+
+        const setChapter = (value) => {
+          window.location.search = `?chapter=${value}`;
+        };
 
         const chapterSelector = () => {
           return html`
             <div class="chapter-selector">
-              <button onClick=${() => setChapter((prev) => prev - 1)}>
+              <button onClick=${() => setChapter(chapter - 1)}>
                 ← Предыдущая
               </button>
               <p>Глава ${chapter}</p>
-              <button onClick=${() => setChapter((prev) => prev + 1)}>
+              <button onClick=${() => setChapter(chapter + 1)}>
                 Следующая →
               </button>
             </div>
